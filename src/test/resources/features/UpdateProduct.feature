@@ -1,13 +1,16 @@
 Feature: Update Product
   In order to manage my products
-  As a user
+  As a business or admin
   I want to update existing products
 
+  Background:
+    # Registramos un ADMIN para poder hacer las operaciones
+    Given There is a registered admin with username "admin" and password "password" and email "admin@test.com"
 
   # ========== ATRIBUTO: name ==========
 
   Scenario: Update product name successfully
-    Given I login as "demo" with password "password"
+    Given I login as "admin" with password "password"
     And A product exists with the following details:
       | name  | Orange |
       | price | 2.50   |
@@ -17,7 +20,7 @@ Feature: Update Product
     And The response contains a product with name "Orange Updated"
 
   Scenario: Update product name to empty value
-    Given I login as "demo" with password "password"
+    Given I login as "admin" with password "password"
     And A product exists with the following details:
       | name  | Apple |
       | price | 1.80  |
@@ -29,7 +32,7 @@ Feature: Update Product
   # ========== ATRIBUTO: price ==========
 
   Scenario: Update product price successfully
-    Given I login as "demo" with password "password"
+    Given I login as "admin" with password "password"
     And A product exists with the following details:
       | name  | Banana |
       | price | 1.50   |
@@ -39,7 +42,7 @@ Feature: Update Product
     And The response contains a product with price "2.00"
 
   Scenario: Update product price to negative value
-    Given I login as "demo" with password "password"
+    Given I login as "admin" with password "password"
     And A product exists with the following details:
       | name  | Pear  |
       | price | 3.00  |
@@ -48,7 +51,7 @@ Feature: Update Product
     Then The response code is 400
 
   Scenario: Update product price to zero
-    Given I login as "demo" with password "password"
+    Given I login as "admin" with password "password"
     And A product exists with the following details:
       | name  | Melon |
       | price | 4.50  |
@@ -60,7 +63,7 @@ Feature: Update Product
   # ========== ATRIBUTO: stock ==========
 
   Scenario: Update product stock successfully
-    Given I login as "demo" with password "password"
+    Given I login as "admin" with password "password"
     And A product exists with the following details:
       | name  | Bread |
       | price | 1.20  |
@@ -71,7 +74,7 @@ Feature: Update Product
     And The response contains a product with stock "100"
 
   Scenario: Update product stock to zero
-    Given I login as "demo" with password "password"
+    Given I login as "admin" with password "password"
     And A product exists with the following details:
       | name  | Milk  |
       | price | 1.80  |
@@ -82,7 +85,7 @@ Feature: Update Product
     And The response contains a product with stock "0"
 
   Scenario: Update product stock to negative value
-    Given I login as "demo" with password "password"
+    Given I login as "admin" with password "password"
     And A product exists with the following details:
       | name  | Cheese |
       | price | 5.00   |
@@ -95,7 +98,7 @@ Feature: Update Product
   # ========== ATRIBUTO: isAvailable ==========
 
   Scenario: Update product availability to false
-    Given I login as "demo" with password "password"
+    Given I login as "admin" with password "password"
     And A product exists with the following details:
       | name        | Candy |
       | price       | 0.50  |
@@ -106,7 +109,7 @@ Feature: Update Product
     And The response contains a product with availability "false"
 
   Scenario: Update product availability to true
-    Given I login as "demo" with password "password"
+    Given I login as "admin" with password "password"
     And A product exists with the following details:
       | name        | Chips       |
       | price       | 1.20        |
@@ -120,7 +123,7 @@ Feature: Update Product
   # ========== ATRIBUTO: description ==========
 
   Scenario: Update product description successfully
-    Given I login as "demo" with password "password"
+    Given I login as "admin" with password "password"
     And A product exists with the following details:
       | name  | Water |
       | price | 1.00  |
@@ -129,7 +132,7 @@ Feature: Update Product
     Then The response code is 200
 
   Scenario: Update product description exceeding max length
-    Given I login as "demo" with password "password"
+    Given I login as "admin" with password "password"
     And A product exists with the following details:
       | name  | Juice |
       | price | 2.50  |
@@ -141,7 +144,7 @@ Feature: Update Product
   # ========== ATRIBUTO: rating ==========
 
   Scenario: Update product rating successfully
-    Given I login as "demo" with password "password"
+    Given I login as "admin" with password "password"
     And A product exists with the following details:
       | name   | Coffee |
       | price  | 2.50   |
@@ -152,7 +155,7 @@ Feature: Update Product
     And The response contains a product with rating "4.5"
 
   Scenario: Update product rating above maximum
-    Given I login as "demo" with password "password"
+    Given I login as "admin" with password "password"
     And A product exists with the following details:
       | name   | Tea   |
       | price  | 1.50  |
@@ -162,7 +165,7 @@ Feature: Update Product
     Then The response code is 400
 
   Scenario: Update product rating below minimum
-    Given I login as "demo" with password "password"
+    Given I login as "admin" with password "password"
     And A product exists with the following details:
       | name   | Soda  |
       | price  | 1.80  |
@@ -175,7 +178,7 @@ Feature: Update Product
   # ========== ACTUALIZACIÓN MÚLTIPLE ==========
 
   Scenario: Update multiple product attributes simultaneously
-    Given I login as "demo" with password "password"
+    Given I login as "admin" with password "password"
     And A product exists with the following details:
       | name  | Chocolate |
       | price | 2.00      |
@@ -193,7 +196,7 @@ Feature: Update Product
   # ========== PRODUCTO INEXISTENTE ==========
 
   Scenario: Update product that does not exist
-    Given I login as "demo" with password "password"
+    Given I login as "admin" with password "password"
     When I update the product with id "999" with the following details:
       | name  | Non Existent |
       | price | 5.00         |
@@ -210,3 +213,15 @@ Feature: Update Product
     When I update the product with id "1" with the following details:
       | name | Updated Cookies |
     Then The response code is 401
+
+  # ========== SIN AUTORIZACIÓN (Usuario normal) ==========
+
+  Scenario: Regular user cannot update product
+    Given There is a registered user with username "user" and password "password" and email "user@test.com"
+    And I login as "user" with password "password"
+    And A product exists with the following details:
+      | name  | Bread2 |
+      | price | 1.00   |
+    When I update the product with id "1" with the following details:
+      | name | Hacked Bread |
+    Then The response code is 403
