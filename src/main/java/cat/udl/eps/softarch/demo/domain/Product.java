@@ -1,5 +1,6 @@
 package cat.udl.eps.softarch.demo.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -75,7 +76,14 @@ public class Product extends UriEntity<Long>{
     @JsonProperty("partOfLoyaltyProgram")
     private boolean isPartOfLoyaltyProgram;
 
-    
+    // Image storage fields
+    @Lob
+    @JsonIgnore
+    @Column(length = 5242880) // 5MB max
+    private byte[] image;
+
+    private String imageContentType;
+
     //TODO
     // @ManyToMany(mappedBy = "products")
     //    private Set<Order> orders;

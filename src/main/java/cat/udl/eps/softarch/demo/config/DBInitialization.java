@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import jakarta.annotation.PostConstruct;
 import java.util.Arrays;
+import java.util.Set;
 
 @Configuration
 public class DBInitialization {
@@ -31,8 +32,20 @@ public class DBInitialization {
             user.setId("demo");
             user.setPassword(defaultPassword);
             user.encodePassword();
+            user.setRoles(Set.of("CUSTOMER"));
             userRepository.save(user);
         }
+
+        if (!adminRepository.existsById("admin")) {
+            Admin admin = new Admin();
+            admin.setEmail("admin@sample.app");
+            admin.setId("admin");
+            admin.setPassword(defaultPassword);
+            admin.encodePassword();
+            admin.setRoles(Set.of("ADMIN"));
+            adminRepository.save(admin);
+        }
+
         if (Arrays.asList(activeProfiles.split(",")).contains("test")) {
             // Testing instances
             if (!userRepository.existsById("test")) {
@@ -41,6 +54,7 @@ public class DBInitialization {
                 user.setId("test");
                 user.setPassword(defaultPassword);
                 user.encodePassword();
+                user.setRoles(Set.of("CUSTOMER"));
                 userRepository.save(user);
             }
             // Admin user for testing
@@ -50,6 +64,7 @@ public class DBInitialization {
                 admin.setId("admin");
                 admin.setPassword(defaultPassword);
                 admin.encodePassword();
+                admin.setRoles(Set.of("ADMIN"));
                 adminRepository.save(admin);
             }
         }
