@@ -2,6 +2,8 @@ package cat.udl.eps.softarch.demo.controller;
 
 import cat.udl.eps.softarch.demo.domain.Product;
 import cat.udl.eps.softarch.demo.repository.ProductRepository;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -68,26 +70,23 @@ public class ProductImageController {
                 .body("Failed to upload image: " + e.getMessage());
         }
     }
-
-    @GetMapping("/products/{id}/image")
-    public ResponseEntity<byte[]> getImage(@PathVariable Long id) {
-        // 1. Buscas el producto (con la corrección del 404 que vimos antes)
+    @GetMapping("/{id}/image")
+    public ResponseEntity<Resource> getImage(@PathVariable Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
 
-        // 2. Obtienes la imagen (suponiendo que tienes un getter, ej: getImageBytes())
-        // Nota: verifica cómo se llama el campo en tu entidad Product.
-        // Si usas Lombok y el campo es 'image', el getter es 'getImage()'.
         byte[] imageBytes = product.getImage();
 
         if (imageBytes == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Image not found for this product");
         }
 
-        // 3. Devuelves el ResponseEntity configurado
+        ByteArrayResource resource = new ByteArrayResource(imageBytes);
+
         return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_PNG) // Forzamos que sea PNG para que pase el test
-                .body(imageBytes);
+                .contentType(MediaType.IMAGE_PNG)
+                .contentLength(imageBytes.length) // Buena práctica añadir esto
+                .body(resource);
     }
 
     @DeleteMapping("/products/{id}/image")

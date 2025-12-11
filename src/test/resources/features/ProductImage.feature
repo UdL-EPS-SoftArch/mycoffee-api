@@ -123,7 +123,7 @@ Feature: Product Image Management
   Scenario: Delete image from non-existent product
     Given I login as "admin" with password "password"
     When I delete the image of product with id "999"
-    Then The response code is 500
+    Then The response code is 404
 
   # ========== UPDATE IMAGE ==========
 
