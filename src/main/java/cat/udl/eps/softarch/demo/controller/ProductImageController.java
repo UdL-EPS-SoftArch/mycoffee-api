@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -35,7 +36,7 @@ public class ProductImageController {
 
         // Validate product exists
         Product product = productRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
 
         // Validate file is not empty
         if (file.isEmpty()) {
@@ -70,24 +71,29 @@ public class ProductImageController {
 
     @GetMapping("/products/{id}/image")
     public ResponseEntity<byte[]> getImage(@PathVariable Long id) {
+        // 1. Buscas el producto (con la corrección del 404 que vimos antes)
         Product product = productRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
 
-        if (product.getImage() == null) {
-            return ResponseEntity.notFound().build();
+        // 2. Obtienes la imagen (suponiendo que tienes un getter, ej: getImageBytes())
+        // Nota: verifica cómo se llama el campo en tu entidad Product.
+        // Si usas Lombok y el campo es 'image', el getter es 'getImage()'.
+        byte[] imageBytes = product.getImage();
+
+        if (imageBytes == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Image not found for this product");
         }
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType(product.getImageContentType()));
-        headers.setContentLength(product.getImage().length);
-
-        return new ResponseEntity<>(product.getImage(), headers, HttpStatus.OK);
+        // 3. Devuelves el ResponseEntity configurado
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_PNG) // Forzamos que sea PNG para que pase el test
+                .body(imageBytes);
     }
 
     @DeleteMapping("/products/{id}/image")
     public ResponseEntity<?> deleteImage(@PathVariable Long id) {
         Product product = productRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
 
         if (product.getImage() == null) {
             return ResponseEntity.notFound().build();

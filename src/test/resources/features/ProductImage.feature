@@ -28,7 +28,7 @@ Feature: Product Image Management
   Scenario: Upload image to non-existent product
     Given I login as "admin" with password "password"
     When I upload an image to product with id "999"
-    Then The response code is 500
+    Then The response code is 404
 
   Scenario: Upload image with invalid content type
     Given I login as "admin" with password "password"

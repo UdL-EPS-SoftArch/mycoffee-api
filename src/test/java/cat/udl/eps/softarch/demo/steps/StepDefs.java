@@ -3,6 +3,7 @@ package cat.udl.eps.softarch.demo.steps;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
+import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,7 +32,7 @@ import org.springframework.web.context.WebApplicationContext;
 	classes = {DemoApplication.class},
 	loader = SpringBootContextLoader.class
 )
-@DirtiesContext
+@DirtiesContext(classMode = AFTER_EACH_TEST_METHOD)
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ActiveProfiles("test")
