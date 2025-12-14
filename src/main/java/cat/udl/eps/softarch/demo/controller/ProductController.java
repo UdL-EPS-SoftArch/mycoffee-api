@@ -45,19 +45,12 @@ public class ProductController {
         }
 
         product.setStock(newStock);
-
-        // Auto-adjust availability based on stock
-        if (newStock == 0) {
-            product.setAvailable(false);
-        }
-
         productRepository.save(product);
 
         return ResponseEntity.ok(Map.of(
                 "message", "Stock updated successfully",
                 "productId", id,
-                "newStock", newStock,
-                "isAvailable", product.isAvailable()
+                "newStock", newStock
         ));
     }
 

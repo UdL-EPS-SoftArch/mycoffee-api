@@ -96,13 +96,6 @@ public class ProductEventHandler {
                     product.getName(), pointsGiven, pointsCost);
         }
 
-        // Auto-adjust availability based on stock
-        if (product.getStock() == 0 && product.isAvailable()) {
-            logger.warn("Product {} has 0 stock but is marked as available. Setting to unavailable.",
-                    product.getName());
-            product.setAvailable(false);
-        }
-
         // Validate price only if it's being set/updated
         if (product.getPrice() != null && product.getPrice().doubleValue() <= 0) {
             logger.error("Product {} has invalid price: {}", product.getName(), product.getPrice());
