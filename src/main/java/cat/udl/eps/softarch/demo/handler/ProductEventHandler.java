@@ -26,14 +26,14 @@ public class ProductEventHandler {
     public void handleBeforeCreate(Product product) {
         logger.info("Before creating product: {}", product.getName());
         validateProductAccess(product, "create");
-        validateBusinessLogic(product);
+        validateBusinessLogic(product, true);
     }
 
     @HandleBeforeSave
     public void handleBeforeSave(Product product) {
         logger.info("Before updating product: {}", product.getName());
         validateProductAccess(product, "update");
-        validateBusinessLogic(product);
+        validateBusinessLogic(product, false);
     }
 
     @HandleBeforeDelete
@@ -67,16 +67,18 @@ public class ProductEventHandler {
         logger.info("After linking: {} to {}", product.getName(), linked);
     }
 
-    private void validateBusinessLogic(Product product) {
-        // Validate required associations
-        if (product.getInventory() == null) {
-            logger.error("Product {} has no inventory assigned", product.getName());
-            throw new IllegalArgumentException("Product must be assigned to an inventory");
-        }
+    private void validateBusinessLogic(Product product, boolean isCreation) {
+        // Validate required associations only on creation
+        if (isCreation) {
+            if (product.getInventory() == null) {
+                logger.error("Product {} has no inventory assigned", product.getName());
+                throw new IllegalArgumentException("Product must be assigned to an inventory");
+            }
 
-        if (product.getCategory() == null) {
-            logger.error("Product {} has no category assigned", product.getName());
-            throw new IllegalArgumentException("Product must be assigned to a category");
+            if (product.getCategory() == null) {
+                logger.error("Product {} has no category assigned", product.getName());
+                throw new IllegalArgumentException("Product must be assigned to a category");
+            }
         }
 
         // Validate loyalty program consistency
@@ -132,12 +134,20 @@ public class ProductEventHandler {
             return;
         }
 
-        if (product.getInventory() == null || product.getInventory().getBusiness() == null) {
+        // For updates, if inventory is not loaded, fetch the product from DB
+        Product productToValidate = product;
+        if ((product.getInventory() == null || product.getInventory().getBusiness() == null)
+                && product.getId() != null && operation.equals("update")) {
+            productToValidate = productRepository.findById(product.getId())
+                    .orElse(product);
+        }
+
+        if (productToValidate.getInventory() == null || productToValidate.getInventory().getBusiness() == null) {
             logger.warn("Product {} has no inventory or business associated", product.getName());
             throw new AccessDeniedException("Product must be associated with a business inventory");
         }
 
-        String businessOwner = product.getInventory().getBusiness().getUsername();
+        String businessOwner = productToValidate.getInventory().getBusiness().getUsername();
         String currentUser = auth.getName();
 
         if (!currentUser.equals(businessOwner)) {
