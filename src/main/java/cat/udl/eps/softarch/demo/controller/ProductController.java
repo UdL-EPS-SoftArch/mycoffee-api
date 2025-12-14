@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -80,6 +81,29 @@ public class ProductController {
                 "productId", id,
                 "isAvailable", product.isAvailable()
         ));
+    }
+
+    @GetMapping("/low-stock")
+    public ResponseEntity<List<Product>> getLowStockProducts(
+            @RequestParam(defaultValue = "10") int threshold) {
+
+        if (threshold < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Threshold must be non-negative");
+        }
+
+        List<Product> lowStockProducts = productRepository.findByStockLessThanEqual(threshold);
+
+        return ResponseEntity.ok(lowStockProducts);
+    }
+
+    @GetMapping("/by-business/{businessId}")
+    public ResponseEntity<List<Product>> getProductsByBusiness(@PathVariable Long businessId) {
+        Business business = businessRepository.findById(businessId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Business not found"));
+
+        List<Product> products = productRepository.findByInventory_Business(business);
+
+        return ResponseEntity.ok(products);
     }
 
     private void validateProductOwnership(Product product) {
