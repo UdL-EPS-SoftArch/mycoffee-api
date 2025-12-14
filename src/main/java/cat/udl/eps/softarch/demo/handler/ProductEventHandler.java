@@ -68,6 +68,17 @@ public class ProductEventHandler {
     }
 
     private void validateBusinessLogic(Product product) {
+        // Validate required associations
+        if (product.getInventory() == null) {
+            logger.error("Product {} has no inventory assigned", product.getName());
+            throw new IllegalArgumentException("Product must be assigned to an inventory");
+        }
+
+        if (product.getCategory() == null) {
+            logger.error("Product {} has no category assigned", product.getName());
+            throw new IllegalArgumentException("Product must be assigned to a category");
+        }
+
         // Validate loyalty program consistency
         if (product.isPartOfLoyaltyProgram()) {
             Integer pointsGiven = product.getPointsGiven();
@@ -95,6 +106,14 @@ public class ProductEventHandler {
             logger.error("Product {} has invalid price: {}", product.getName(), product.getPrice());
             throw new IllegalArgumentException("Product must have a valid price greater than 0");
         }
+
+        // Validate stock is non-negative
+        if (product.getStock() < 0) {
+            logger.error("Product {} has negative stock: {}", product.getName(), product.getStock());
+            throw new IllegalArgumentException("Product stock cannot be negative");
+        }
+
+        logger.info("Product {} passed all business logic validations", product.getName());
     }
 
     private void validateProductAccess(Product product, String operation) {
