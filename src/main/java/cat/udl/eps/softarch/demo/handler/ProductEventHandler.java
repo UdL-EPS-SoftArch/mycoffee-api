@@ -103,13 +103,19 @@ public class ProductEventHandler {
             product.setAvailable(false);
         }
 
-        // Validate price is set
-        if (product.getPrice() == null || product.getPrice().doubleValue() <= 0) {
+        // Validate price only if it's being set/updated
+        if (product.getPrice() != null && product.getPrice().doubleValue() <= 0) {
             logger.error("Product {} has invalid price: {}", product.getName(), product.getPrice());
-            throw new IllegalArgumentException("Product must have a valid price greater than 0");
+            throw new IllegalArgumentException("Product price must be greater than 0");
         }
 
-        // Validate stock is non-negative
+        // For creation, ensure price is set
+        if (isCreation && product.getPrice() == null) {
+            logger.error("Product {} has no price set", product.getName());
+            throw new IllegalArgumentException("Product must have a valid price");
+        }
+
+        // Validate stock is non-negative (stock defaults to 0, which is OK)
         if (product.getStock() < 0) {
             logger.error("Product {} has negative stock: {}", product.getName(), product.getStock());
             throw new IllegalArgumentException("Product stock cannot be negative");
