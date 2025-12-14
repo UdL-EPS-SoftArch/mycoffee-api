@@ -26,12 +26,14 @@ public class ProductEventHandler {
     public void handleBeforeCreate(Product product) {
         logger.info("Before creating product: {}", product.getName());
         validateProductAccess(product, "create");
+        validateBusinessLogic(product);
     }
 
     @HandleBeforeSave
     public void handleBeforeSave(Product product) {
         logger.info("Before updating product: {}", product.getName());
         validateProductAccess(product, "update");
+        validateBusinessLogic(product);
     }
 
     @HandleBeforeDelete
@@ -63,6 +65,36 @@ public class ProductEventHandler {
     @HandleAfterLinkSave
     public void handleAfterLinkSave(Product product, Object linked) {
         logger.info("After linking: {} to {}", product.getName(), linked);
+    }
+
+    private void validateBusinessLogic(Product product) {
+        // Validate loyalty program consistency
+        if (product.isPartOfLoyaltyProgram()) {
+            Integer pointsGiven = product.getPointsGiven();
+            Integer pointsCost = product.getPointsCost();
+
+            if ((pointsGiven == null || pointsGiven == 0) && (pointsCost == null || pointsCost == 0)) {
+                logger.error("Product {} is part of loyalty program but has no points defined", product.getName());
+                throw new IllegalArgumentException(
+                        "Products in loyalty program must have either pointsGiven or pointsCost greater than 0");
+            }
+
+            logger.info("Product {} loyalty program validated: pointsGiven={}, pointsCost={}",
+                    product.getName(), pointsGiven, pointsCost);
+        }
+
+        // Auto-adjust availability based on stock
+        if (product.getStock() == 0 && product.isAvailable()) {
+            logger.warn("Product {} has 0 stock but is marked as available. Setting to unavailable.",
+                    product.getName());
+            product.setAvailable(false);
+        }
+
+        // Validate price is set
+        if (product.getPrice() == null || product.getPrice().doubleValue() <= 0) {
+            logger.error("Product {} has invalid price: {}", product.getName(), product.getPrice());
+            throw new IllegalArgumentException("Product must have a valid price greater than 0");
+        }
     }
 
     private void validateProductAccess(Product product, String operation) {
