@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.ZonedDateTime;
 import java.util.Set;
@@ -13,6 +14,7 @@ import java.util.Set;
 @Entity
 @Table(name = "order_table")
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class Order extends UriEntity<Long> {
 
     @Id

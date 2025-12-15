@@ -90,7 +90,7 @@ public class ProductController {
     }
 
     @GetMapping("/by-business/{businessId}")
-    public ResponseEntity<List<Product>> getProductsByBusiness(@PathVariable Long businessId) {
+    public ResponseEntity<List<Product>> getProductsByBusiness(@PathVariable String businessId) {
         Business business = businessRepository.findById(businessId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Business not found"));
 

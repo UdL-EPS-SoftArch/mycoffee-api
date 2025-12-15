@@ -1,7 +1,9 @@
 package cat.udl.eps.softarch.demo.config;
 import cat.udl.eps.softarch.demo.domain.Admin;
+import cat.udl.eps.softarch.demo.domain.Business;
 import cat.udl.eps.softarch.demo.domain.User;
 import cat.udl.eps.softarch.demo.repository.AdminRepository;
+import cat.udl.eps.softarch.demo.repository.BusinessRepository;
 import cat.udl.eps.softarch.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -17,10 +19,12 @@ public class DBInitialization {
     private String activeProfiles;
     private final UserRepository userRepository;
     private final AdminRepository adminRepository;
+    private final BusinessRepository businessRepository;
 
-    public DBInitialization(UserRepository userRepository, AdminRepository adminRepository) {
+    public DBInitialization(UserRepository userRepository, AdminRepository adminRepository, BusinessRepository businessRepository) {
         this.userRepository = userRepository;
         this.adminRepository = adminRepository;
+        this.businessRepository = businessRepository;
     }
 
     @PostConstruct
@@ -46,6 +50,16 @@ public class DBInitialization {
             adminRepository.save(admin);
         }
 
+        if (!businessRepository.existsById("manager")) {
+            Business business = new Business();
+            business.setId("manager");
+            business.setEmail("manager@coffee.com");
+            business.setPassword(defaultPassword);
+            business.encodePassword();
+            business.setName("Best Coffee Shop");
+            business.setAddress("Main Street 123");
+            businessRepository.save(business);
+        }
         if (Arrays.asList(activeProfiles.split(",")).contains("test")) {
             // Testing instances
             if (!userRepository.existsById("test")) {

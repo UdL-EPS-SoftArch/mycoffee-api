@@ -2,11 +2,8 @@ package cat.udl.eps.softarch.demo.steps;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -19,9 +16,7 @@ import cat.udl.eps.softarch.demo.repository.BusinessRepository;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
-import jakarta.validation.constraints.NotEmpty;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import java.nio.charset.StandardCharsets;
@@ -30,19 +25,17 @@ import java.util.List;
 
 public class CreateLoyaltyStepDefs {
 
-    @Autowired
-    private StepDefs stepDefs;
+    private final StepDefs stepDefs;
+    private final LoyaltyRepository loyaltyRepository;
+    private final CustomerRepository customerRepository;
+    private final BusinessRepository businessRepository;
 
-    @Autowired
-    private LoyaltyRepository loyaltyRepository;
-
-    @Autowired
-    private CustomerRepository customerRepository;
-
-    @Autowired
-    private BusinessRepository businessRepository;
-
-    private Long createdLoyaltyId;
+    public CreateLoyaltyStepDefs(StepDefs stepDefs, LoyaltyRepository loyaltyRepository, CustomerRepository customerRepository, BusinessRepository businessRepository) {
+        this.stepDefs = stepDefs;
+        this.loyaltyRepository = loyaltyRepository;
+        this.customerRepository = customerRepository;
+        this.businessRepository = businessRepository;
+    }
 
     @Given("There is no loyalty with id {long}")
     public void thereIsNoLoyaltyWithId(Long id) {
@@ -65,11 +58,11 @@ public class CreateLoyaltyStepDefs {
         }
     }
 
-    @Given("There is a registered business with id {long} and name {string} and address {string}")
-    public void thereIsARegisteredBusinessWithIdAndNameAndAddress(Long id, String name, String address) {
+    @Given("There is a registered business with id {string} and name {string} and address {string}")
+    public void thereIsARegisteredBusinessWithIdAndNameAndAddress(String id, String name, String address) {
         if (!businessRepository.existsById(id)) {
             Business business = new Business();
-            business.setId(String.valueOf(id));
+            business.setId(id);
             business.setName(name);
             business.setAddress(address);
             business.setEmail("business" + id + "@example.com");
@@ -79,9 +72,9 @@ public class CreateLoyaltyStepDefs {
         }
     }
 
-    @Given("There is a loyalty for customer {string} and business {long} with {int} points")
+    @Given("There is a loyalty for customer {string} and business {string} with {int} points")
     public void thereIsALoyaltyForCustomerAndBusinessWithPoints(
-            String customerUsername, Long businessId, Integer points) {
+            String customerUsername, String businessId, Integer points) {
         Customer customer = customerRepository.findById(customerUsername).orElseThrow();
         Business business = businessRepository.findById(businessId).orElseThrow();
 
@@ -96,9 +89,9 @@ public class CreateLoyaltyStepDefs {
         }
     }
 
-    @When("I create a loyalty for customer {string} and business {long} with {int} points")
+    @When("I create a loyalty for customer {string} and business {string} with {int} points")
     public void iCreateALoyaltyForCustomerAndBusinessWithPoints(
-            String customerUsername, Long businessId, Integer points) throws Exception {
+            String customerUsername, String businessId, Integer points) throws Exception {
         Customer customer = customerRepository.findById(customerUsername).orElseThrow();
         Business business = businessRepository.findById(businessId).orElseThrow();
 
@@ -129,17 +122,17 @@ public class CreateLoyaltyStepDefs {
 
 
 
-    @And("It has been created a loyalty for customer {string} and business {long} with {int} points")
+    @And("It has been created a loyalty for customer {string} and business {string} with {int} points")
     public void itHasBeenCreatedALoyaltyForCustomerAndBusinessWithPoints(
-            String customerUsername, Long businessId, Integer points) throws Exception {
+            String customerUsername, String businessId, Integer points) throws Exception {
         Customer customer = customerRepository.findById(customerUsername).orElseThrow();
         Business business = businessRepository.findById(businessId).orElseThrow();
 
         List<Loyalty> loyalties = loyaltyRepository.findByCustomerAndBusiness(customer, business);
-        assertTrue(!loyalties.isEmpty(), "Loyalty should exist");
+        assertFalse(loyalties.isEmpty(), "Loyalty should exist");
 
-        Loyalty loyalty = loyalties.get(0);
-        createdLoyaltyId = loyalty.getId();
+        Loyalty loyalty = loyalties.getFirst();
+        Long createdLoyaltyId = loyalty.getId();
 
         stepDefs.result = stepDefs.mockMvc.perform(
                         get("/loyalties/{id}", loyalty.getId())
