@@ -1,12 +1,9 @@
 package cat.udl.eps.softarch.demo.domain;
 
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.OneToOne;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.persistence.Transient;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,27 +14,13 @@ import java.util.Collection;
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class Customer extends User {
-
-    @NotEmpty
-    private String name;
-
-    @NotEmpty
-    private String phoneNumber;
+public class Admin extends User {
 
     @Override
+    @Transient
     @JsonValue(value = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_CUSTOMER");
+        return AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_ADMIN");
     }
-
-
-    //TODO
-    // @OneToMany(mappedBy = "products")
-    // private Set<Order> orders;
-
-    //TODO
-    // @OneToOne
-    // private Loyalty loyalty;
 }
