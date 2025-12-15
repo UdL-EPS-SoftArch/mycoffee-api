@@ -27,53 +27,53 @@ public class WebSecurityConfig {
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests((auth) -> auth
-                        // Endpoints Públicos
-                        .requestMatchers(HttpMethod.GET, "/businesses", "/businesses/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/products", "/products/**").permitAll() // <-- NUEVO: Ver productos es público
-                        .requestMatchers(HttpMethod.POST, "/users").anonymous()
-                        .requestMatchers(HttpMethod.POST, "/customers").anonymous()
+                // Endpoints Públicos
+                .requestMatchers(HttpMethod.GET, "/businesses", "/businesses/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/products", "/products/**").permitAll() // <-- NUEVO: Ver productos es público
+                .requestMatchers(HttpMethod.POST, "/users").anonymous()
+                .requestMatchers(HttpMethod.POST, "/customers").anonymous()
 
-                        // Endpoints Bloqueados Específicamente
-                        .requestMatchers(HttpMethod.POST, "/users/*").denyAll()
-                        .requestMatchers(HttpMethod.POST, "/customers/*").denyAll()
+                // Endpoints Bloqueados Específicamente
+                .requestMatchers(HttpMethod.POST, "/users/*").denyAll()
+                .requestMatchers(HttpMethod.POST, "/customers/*").denyAll()
 
-                        // Gestión de Negocios (Solo ADMIN)
-                        .requestMatchers(HttpMethod.POST, "/businesses").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/businesses/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/businesses/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/businesses/**").hasRole("ADMIN")
+                // Gestión de Negocios (Solo ADMIN)
+                .requestMatchers(HttpMethod.POST, "/businesses").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/businesses/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PATCH, "/businesses/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/businesses/**").hasRole("ADMIN")
 
-                        // Gestión de Productos (Solo ADMIN y BUSINESS) <-- NUEVO
-                        .requestMatchers(HttpMethod.POST, "/products", "/products/**").hasAnyRole("ADMIN", "BUSINESS")
-                        .requestMatchers(HttpMethod.PUT, "/products/**").hasAnyRole("ADMIN", "BUSINESS")
-                        .requestMatchers(HttpMethod.PATCH, "/products/**").hasAnyRole("ADMIN", "BUSINESS")
-                        .requestMatchers(HttpMethod.DELETE, "/products/**").hasAnyRole("ADMIN", "BUSINESS")
+                // Gestión de Productos (Solo ADMIN y BUSINESS) <-- NUEVO
+                .requestMatchers(HttpMethod.POST, "/products", "/products/**").hasAnyRole("ADMIN", "BUSINESS")
+                .requestMatchers(HttpMethod.PUT, "/products/**").hasAnyRole("ADMIN", "BUSINESS")
+                .requestMatchers(HttpMethod.PATCH, "/products/**").hasAnyRole("ADMIN", "BUSINESS")
+                .requestMatchers(HttpMethod.DELETE, "/products/**").hasAnyRole("ADMIN", "BUSINESS")
 
-                        // Gestión de Pedidos (Roles Específicos)
-                        .requestMatchers(HttpMethod.GET, "/orders").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/orders/*").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/orders").hasRole("CUSTOMER")
+                // Gestión de Pedidos (Roles Específicos)
+                .requestMatchers(HttpMethod.GET, "/orders").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/orders/*").authenticated()
+                .requestMatchers(HttpMethod.POST, "/orders").hasRole("CUSTOMER")
 
-                        .requestMatchers(HttpMethod.GET, "/inventories/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/inventories").hasRole("BUSINESS")
-                        .requestMatchers(HttpMethod.PUT, "/inventories/**").hasRole("BUSINESS")
-                        .requestMatchers(HttpMethod.PATCH, "/inventories/**").hasRole("BUSINESS")
-                        .requestMatchers(HttpMethod.DELETE, "/inventories/**").hasRole("BUSINESS")
+                .requestMatchers(HttpMethod.GET, "/inventories/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/inventories").hasRole("BUSINESS")
+                .requestMatchers(HttpMethod.PUT, "/inventories/**").hasRole("BUSINESS")
+                .requestMatchers(HttpMethod.PATCH, "/inventories/**").hasRole("BUSINESS")
+                .requestMatchers(HttpMethod.DELETE, "/inventories/**").hasRole("BUSINESS")
 
-                        // Identidad (Cualquiera Autenticado)
-                        .requestMatchers(HttpMethod.GET, "/identity").authenticated()
+                // Identidad (Cualquiera Autenticado)
+                .requestMatchers(HttpMethod.GET, "/identity").authenticated()
 
-                        // Reglas Genéricas (Resto requiere autenticación)
-                        .requestMatchers(HttpMethod.POST, "/*").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/*/*").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/*/*").authenticated()
-                        .requestMatchers(HttpMethod.PATCH, "/*/*").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/*/*").authenticated()
-                        .anyRequest().permitAll())
-                .csrf((csrf) -> csrf.disable())
-                .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .cors((cors) -> cors.configurationSource(corsConfigurationSource()))
-                .httpBasic((httpBasic) -> httpBasic.realmName("demo"));
+                // Reglas Genéricas (Resto requiere autenticación)
+                .requestMatchers(HttpMethod.POST, "/*").authenticated()
+                .requestMatchers(HttpMethod.POST, "/*/*").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/*/*").authenticated()
+                .requestMatchers(HttpMethod.PATCH, "/*/*").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/*/*").authenticated()
+                .anyRequest().permitAll())
+            .csrf((csrf) -> csrf.disable())
+            .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .cors((cors) -> cors.configurationSource(corsConfigurationSource()))
+            .httpBasic((httpBasic) -> httpBasic.realmName("demo"));
         return http.build();
     }
 
