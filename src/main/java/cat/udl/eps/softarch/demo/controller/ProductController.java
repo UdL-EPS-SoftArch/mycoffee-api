@@ -4,6 +4,7 @@ import cat.udl.eps.softarch.demo.domain.Business;
 import cat.udl.eps.softarch.demo.domain.Product;
 import cat.udl.eps.softarch.demo.repository.BusinessRepository;
 import cat.udl.eps.softarch.demo.repository.ProductRepository;
+import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -16,8 +17,9 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Map;
 
-@RestController
-@RequestMapping("/products")
+// 1. Mantenim @RepositoryRestController
+@RepositoryRestController
+// 2. IMPORTANT: HEM ESBORRAT @RequestMapping("/products") D'AQUÍ
 public class ProductController {
 
     private final ProductRepository productRepository;
@@ -28,7 +30,10 @@ public class ProductController {
         this.businessRepository = businessRepository;
     }
 
-    @PutMapping("/{id}/stock")
+    // 3. Afegim "/products" al path de cada mètode
+
+    @PutMapping("/products/{id}/stock") // <--- Canviat
+    @ResponseBody
     public ResponseEntity<?> updateStock(@PathVariable Long id, @RequestBody Map<String, Integer> request) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
@@ -54,14 +59,14 @@ public class ProductController {
         ));
     }
 
-    @PutMapping("/{id}/toggle-availability")
+    @PutMapping("/products/{id}/toggle-availability") // <--- Canviat
+    @ResponseBody
     public ResponseEntity<?> toggleAvailability(@PathVariable Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
 
         validateProductOwnership(product);
 
-        // Check if we can make it available
         if (!product.isAvailable() && product.getStock() == 0) {
             return ResponseEntity.badRequest().body("Cannot make product available with 0 stock");
         }
@@ -76,7 +81,8 @@ public class ProductController {
         ));
     }
 
-    @GetMapping("/low-stock")
+    @GetMapping("/products/low-stock") // <--- Canviat
+    @ResponseBody
     public ResponseEntity<List<Product>> getLowStockProducts(
             @RequestParam(defaultValue = "10") int threshold) {
 
@@ -89,7 +95,8 @@ public class ProductController {
         return ResponseEntity.ok(lowStockProducts);
     }
 
-    @GetMapping("/by-business/{businessId}")
+    @GetMapping("/products/by-business/{businessId}") // <--- Canviat
+    @ResponseBody
     public ResponseEntity<List<Product>> getProductsByBusiness(@PathVariable String businessId) {
         Business business = businessRepository.findById(businessId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Business not found"));

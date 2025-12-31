@@ -1,8 +1,12 @@
 package cat.udl.eps.softarch.demo.bootstrap;
 
+import cat.udl.eps.softarch.demo.domain.Business;
 import cat.udl.eps.softarch.demo.domain.Category;
+import cat.udl.eps.softarch.demo.domain.Inventory;
 import cat.udl.eps.softarch.demo.domain.Product;
-import cat.udl.eps.softarch.demo.repository.CategoryRepository; // <--- Import nou
+import cat.udl.eps.softarch.demo.repository.BusinessRepository;
+import cat.udl.eps.softarch.demo.repository.CategoryRepository;
+import cat.udl.eps.softarch.demo.repository.InventoryRepository;
 import cat.udl.eps.softarch.demo.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -19,7 +23,9 @@ import java.util.Set;
 public class ProductLoader implements CommandLineRunner {
 
     private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository; // <--- Injectem el repo de categories
+    private final CategoryRepository categoryRepository;
+    private final BusinessRepository businessRepository;
+    private final InventoryRepository inventoryRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -29,18 +35,41 @@ public class ProductLoader implements CommandLineRunner {
     }
 
     private void loadData() {
-        // --- 1. CREAR I GUARDAR CATEGORIES ---
+
+
+        Business mainBusiness = new Business();
+        mainBusiness.setName("Lleida Coffee Shop");
+        mainBusiness.setEmail("info@lleidacoffee.com");
+        mainBusiness.setUsername("admin1");
+
+
+        mainBusiness.setPassword("password123"); // Ara té 11 caràcters, ja passarà la validació
+        mainBusiness.setAddress("Carrer Major, 1, Lleida");
+        // ------------------------------------------------
+
+        businessRepository.save(mainBusiness);
+
+        Inventory mainInventory = new Inventory();
+        mainInventory.setName("Main Warehouse");
+        mainInventory.setDescription("Magatzem principal de la botiga");
+        mainInventory.setLocation("Lleida, Rovira Roure 4");
+        mainInventory.setTotalStock(1000);
+        mainInventory.setBusiness(mainBusiness);
+
+        inventoryRepository.save(mainInventory);
+
+        System.out.println("📦 Created Main Inventory: " + mainInventory.getName());
+
+
         Category catCoffee = Category.builder().name("Specialty Coffee").description("Best beans in town").build();
         Category catFood = Category.builder().name("Food & Pastry").description("Freshly baked goods").build();
         Category catDrink = Category.builder().name("Drinks").description("Cold and refreshing").build();
         Category catAlt = Category.builder().name("Alternatives").description("Plant based options").build();
         Category catMerch = Category.builder().name("Merchandise").description("Gifts and accessories").build();
 
-        // Guardem les categories primer per tenir ID i poder associar-les
         categoryRepository.saveAll(Arrays.asList(catCoffee, catFood, catDrink, catAlt, catMerch));
 
 
-        // --- 2. CREAR PRODUCTES AMB LA CATEGORIA ASSIGNADA ---
 
         Product cafeEtiopia = Product.builder()
                 .name("Ethiopia Yirgacheffe (250g)")
@@ -49,7 +78,8 @@ public class ProductLoader implements CommandLineRunner {
                 .stock(20)
                 .isAvailable(true)
                 .brand("Nomad Coffee")
-                .category(catCoffee) // <--- Assignem la categoria
+                .category(catCoffee)
+                .inventory(mainInventory)
                 .barcode("8410000000010")
                 .kcal(2)
                 .ingredients(Set.of("100% Washed Arabica Coffee"))
@@ -66,7 +96,8 @@ public class ProductLoader implements CommandLineRunner {
                 .stock(15)
                 .isAvailable(true)
                 .brand("Local Bakery")
-                .category(catFood) // <--- Assignem la categoria
+                .category(catFood)
+                .inventory(mainInventory)
                 .barcode("8410000000020")
                 .kcal(280)
                 .carbs(30)
@@ -86,7 +117,8 @@ public class ProductLoader implements CommandLineRunner {
                 .stock(3)
                 .isAvailable(true)
                 .brand("MyCoffee House")
-                .category(catDrink) // <--- Assignem la categoria
+                .category(catDrink)
+                .inventory(mainInventory)
                 .barcode("8410000000030")
                 .kcal(5)
                 .ingredients(Set.of("Filtered water", "Coffee"))
@@ -103,7 +135,8 @@ public class ProductLoader implements CommandLineRunner {
                 .stock(0)
                 .isAvailable(true)
                 .brand("Local Bakery")
-                .category(catFood) // <--- Assignem la categoria
+                .category(catFood)
+                .inventory(mainInventory)
                 .barcode("8410000000040")
                 .kcal(350)
                 .allergens(Set.of("Gluten", "Nuts", "Soy"))
@@ -118,7 +151,8 @@ public class ProductLoader implements CommandLineRunner {
                 .stock(50)
                 .isAvailable(true)
                 .brand("Oatly")
-                .category(catAlt) // <--- Assignem la categoria
+                .category(catAlt)
+                .inventory(mainInventory)
                 .barcode("8410000000050")
                 .kcal(60)
                 .ingredients(Set.of("Water", "Oats", "Rapeseed oil"))
@@ -136,7 +170,8 @@ public class ProductLoader implements CommandLineRunner {
                 .stock(10)
                 .isAvailable(true)
                 .brand("MyCoffee House")
-                .category(catMerch) // <--- Assignem la categoria
+                .category(catMerch)
+                .inventory(mainInventory)
                 .barcode("8410000000060")
                 .rating(5.0)
                 .isPartOfLoyaltyProgram(true)
@@ -146,8 +181,8 @@ public class ProductLoader implements CommandLineRunner {
 
         productRepository.saveAll(Arrays.asList(cafeEtiopia, croissant, coldBrew, cookieXoc, oatMilk, giftPack));
 
-        System.out.println("------------------------------------------------");
-        System.out.println("☕ COFFEE SHOP MENU LOADED WITH CATEGORIES ☕");
-        System.out.println("------------------------------------------------");
+        System.out.println("-------------------------------------------------------");
+        System.out.println("☕ COFFEE SHOP MENU LOADED WITH CATEGORIES & INVENTORY ☕");
+        System.out.println("-------------------------------------------------------");
     }
 }

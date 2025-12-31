@@ -1,9 +1,11 @@
 package cat.udl.eps.softarch.demo.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore; // <--- Importa això
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
+import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity(name = "Category")
@@ -26,4 +28,10 @@ public class Category extends UriEntity<Long> {
     @Column(length = 255)
     private String description;
 
+    // --- AFEGIR AIXÒ PER EVITAR BUCLES INFINITS I ERRORS ---
+    @OneToMany(mappedBy = "category")
+    @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<Product> products;
 }
