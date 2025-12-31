@@ -84,9 +84,9 @@ public class Product extends UriEntity<Long>{
 
     private String imageContentType;
 
-    //TODO
-    // @ManyToMany(mappedBy = "products")
-    //    private Set<Order> orders;
+
+    @ManyToMany(mappedBy = "products")
+    private Set<Order> orders;
 
     @ManyToOne
     private Category category;
@@ -97,5 +97,9 @@ public class Product extends UriEntity<Long>{
     @ManyToOne
     private Inventory inventory;
 
+    @JsonProperty("categoryName")
+    public String getCategoryName() {
+        return category != null ? category.getName() : "General";
+    }
 
 }
