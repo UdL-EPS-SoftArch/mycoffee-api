@@ -1,4 +1,5 @@
 package cat.udl.eps.softarch.demo.config;
+
 import cat.udl.eps.softarch.demo.domain.Admin;
 import cat.udl.eps.softarch.demo.domain.Business;
 import cat.udl.eps.softarch.demo.domain.User;
@@ -21,7 +22,8 @@ public class DBInitialization {
     private final AdminRepository adminRepository;
     private final BusinessRepository businessRepository;
 
-    public DBInitialization(UserRepository userRepository, AdminRepository adminRepository, BusinessRepository businessRepository) {
+    public DBInitialization(UserRepository userRepository, AdminRepository adminRepository,
+            BusinessRepository businessRepository) {
         this.userRepository = userRepository;
         this.adminRepository = adminRepository;
         this.businessRepository = businessRepository;
@@ -58,6 +60,46 @@ public class DBInitialization {
             business.encodePassword();
             business.setName("Best Coffee Shop");
             business.setAddress("Main Street 123");
+            business.setOpeningTime(java.time.LocalTime.of(8, 0));
+            business.setClosingTime(java.time.LocalTime.of(20, 0));
+            business.setRating(4.5);
+            business.setCapacity(50);
+            business.setHasWifi(true);
+            business.setStatus(cat.udl.eps.softarch.demo.domain.BusinessStatus.ACCEPTED);
+            businessRepository.save(business);
+        }
+
+        if (!businessRepository.existsById("coffee_lover")) {
+            Business business = new Business();
+            business.setId("coffee_lover");
+            business.setEmail("lover@coffee.com");
+            business.setPassword(defaultPassword);
+            business.encodePassword();
+            business.setName("Coffee Lovers");
+            business.setAddress("Second Avenue 45");
+            business.setOpeningTime(java.time.LocalTime.of(9, 0));
+            business.setClosingTime(java.time.LocalTime.of(21, 0));
+            business.setRating(4.8);
+            business.setCapacity(30);
+            business.setHasWifi(true);
+            business.setStatus(cat.udl.eps.softarch.demo.domain.BusinessStatus.ACCEPTED);
+            businessRepository.save(business);
+        }
+
+        if (!businessRepository.existsById("night_owl")) {
+            Business business = new Business();
+            business.setId("night_owl");
+            business.setEmail("night@coffee.com");
+            business.setPassword(defaultPassword);
+            business.encodePassword();
+            business.setName("Night Owl Cafe");
+            business.setAddress("Midnight Lane 66");
+            business.setOpeningTime(java.time.LocalTime.of(18, 0));
+            business.setClosingTime(java.time.LocalTime.of(2, 0));
+            business.setRating(4.2);
+            business.setCapacity(20);
+            business.setHasWifi(false);
+            business.setStatus(cat.udl.eps.softarch.demo.domain.BusinessStatus.ACCEPTED);
             businessRepository.save(business);
         }
         if (Arrays.asList(activeProfiles.split(",")).contains("test")) {

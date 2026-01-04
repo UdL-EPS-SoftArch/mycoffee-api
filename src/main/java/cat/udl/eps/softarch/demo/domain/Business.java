@@ -34,6 +34,7 @@ public class Business extends User {
     private LocalTime openingTime;
     private LocalTime closingTime;
     @Enumerated(EnumType.STRING)
+    @JsonProperty("registrationStatus")
     private BusinessStatus status;
     private String imageUrl;
 
@@ -42,5 +43,19 @@ public class Business extends User {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_BUSINESS");
+    }
+
+    @JsonProperty("ownerId")
+    public String getOwnerId() {
+        return this.getId();
+    }
+
+    @JsonProperty("status")
+    public String getOpenStatus() {
+        if (openingTime == null || closingTime == null) {
+            return "Closed";
+        }
+        LocalTime now = LocalTime.now();
+        return (now.isAfter(openingTime) && now.isBefore(closingTime)) ? "Open" : "Closed";
     }
 }
