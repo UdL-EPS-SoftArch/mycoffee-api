@@ -70,6 +70,10 @@ class Inventory {
     description
     location
     totalStock
+    type: [WAREHOUSE, SHELF, FRIDGE...]
+    status: [ACTIVE, FULL, MAINTENANCE, CLOSED]
+    capacity
+    lastUpdated
 }
 class Category {
     name

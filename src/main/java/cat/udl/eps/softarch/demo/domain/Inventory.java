@@ -29,5 +29,52 @@ public class Inventory extends UriEntity<Long> {
     @ManyToOne
     private Business business;
 
+    @Enumerated(EnumType.STRING)
+    private InventoryType type;
 
+    @Enumerated(EnumType.STRING)
+    private InventoryStatus status;
+
+    private Integer capacity;
+
+    private java.time.LocalDateTime lastUpdated;
+
+    @OneToMany(mappedBy = "inventory", fetch = FetchType.LAZY)
+    @lombok.ToString.Exclude
+    @lombok.EqualsAndHashCode.Exclude
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private List<Product> products;
+
+    /**
+     * Calculates the real total stock from the list of products.
+     * Returns 0 if the product list is not loaded/initialized.
+     */
+    public int getCalculatedTotalStock() {
+        if (products == null) {
+            return 0;
+        }
+        return products.stream()
+                .mapToInt(Product::getStock)
+                .sum();
+    }
+
+    /**
+     * Checks if the inventory is full based on capacity.
+     */
+    public boolean isFull() {
+        if (capacity == null || capacity == 0)
+            return false;
+        return getCalculatedTotalStock() >= capacity;
+    }
+
+    /**
+     * Updates the local totalStock field to match the calculated reality.
+     */
+    public void syncTotalStock() {
+        if (products != null && !products.isEmpty()) {
+            this.totalStock = products.stream()
+                    .mapToInt(Product::getStock)
+                    .sum();
+        }
+    }
 }
