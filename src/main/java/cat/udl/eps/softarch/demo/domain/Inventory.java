@@ -71,6 +71,10 @@ public class Inventory extends UriEntity<Long> {
      * Updates the local totalStock field to match the calculated reality.
      */
     public void syncTotalStock() {
-        this.totalStock = getCalculatedTotalStock();
+        if (products != null && !products.isEmpty()) {
+            this.totalStock = products.stream()
+                    .mapToInt(Product::getStock)
+                    .sum();
+        }
     }
 }
