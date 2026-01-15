@@ -33,6 +33,10 @@ public class CustomerEventHandler {
     @HandleBeforeCreate
     public void handleCustomerPreCreate(Customer customer) {
         logger.info("Before creating: {}", customer.toString());
+        // Codificar password ANTES de crear
+        if (customer.getPassword() != null && !customer.getPassword().isEmpty()) {
+            customer.encodePassword();
+        }
     }
 
     @HandleBeforeSave
