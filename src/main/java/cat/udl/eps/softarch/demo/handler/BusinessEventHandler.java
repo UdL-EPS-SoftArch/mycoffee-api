@@ -21,8 +21,6 @@ public class BusinessEventHandler {
         this.businessRepository = businessRepository;
     }
 
-    // --- BEFORE EVENTS ---
-
     @HandleBeforeCreate
     public void handleBeforeCreate(Business business) {
         logger.info("Before creating business: {}", business);
@@ -36,11 +34,13 @@ public class BusinessEventHandler {
         if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
 
             String currentUsername = auth.getName();
-            String owner = business.getName();
+            String ownerId = business.getId();
 
-            // Solo el propietario puede modificar su negocio
-            if (!currentUsername.equals(owner)) {
-                logger.warn("User {} tried to modify business{}", currentUsername, owner);
+            boolean isAdmin = auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+            if (!isAdmin && !currentUsername.equals(ownerId)) {
+                logger.warn("User {} tried to modify business {}", currentUsername, ownerId);
                 throw new AccessDeniedException("You can only update your own business");
             }
         }
@@ -55,8 +55,6 @@ public class BusinessEventHandler {
     public void handleBeforeLinkSave(Business business, Object linked) {
         logger.info("Before linking: {} to {}", business, linked);
     }
-
-    // --- AFTER EVENTS ---
 
     @HandleAfterCreate
     public void handleAfterCreate(Business business) {
