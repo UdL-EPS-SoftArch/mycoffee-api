@@ -57,9 +57,13 @@ public class Product extends UriEntity<Long>{
     @PositiveOrZero private int proteins;
     @PositiveOrZero private int fats;
 
+    // IMPORTAT: Excloure col·leccions del HashCode/Equals per evitar problemes amb Hibernate
     @ElementCollection
+    @EqualsAndHashCode.Exclude
     private Set<String> ingredients;
+
     @ElementCollection
+    @EqualsAndHashCode.Exclude
     private Set<String> allergens;
 
     @DecimalMin(value = "0")
@@ -68,10 +72,10 @@ public class Product extends UriEntity<Long>{
 
     // Loyalty program related fields
     @PositiveOrZero
-    private Integer pointsGiven; // Points given when purchasing this product
-    
+    private Integer pointsGiven;
+
     @PositiveOrZero
-    private Integer pointsCost;  // Points needed to redeem this product
+    private Integer pointsCost;
 
     @JsonProperty("partOfLoyaltyProgram")
     private boolean isPartOfLoyaltyProgram;
@@ -80,22 +84,36 @@ public class Product extends UriEntity<Long>{
     @Lob
     @JsonIgnore
     @Column(length = 5242880) // 5MB max
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private byte[] image;
 
     private String imageContentType;
 
-    //TODO
-    // @ManyToMany(mappedBy = "products")
-    //    private Set<Order> orders;
+    // --- CORRECCIONS PRINCIPALS AQUÍ ---
+
+    @ManyToMany(mappedBy = "products")
+    @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude // <--- VITAL: Evita que Hibernate cridi hashCode mentre gestiona la col·lecció
+    private Set<Order> orders;
 
     @ManyToOne
     private Category category;
 
     @ManyToMany
+    @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude // <--- VITAL
     private Set<Basket> baskets;
+    // -----------------------------------
 
     @ManyToOne
     private Inventory inventory;
 
+    @JsonProperty("categoryName")
+    public String getCategoryName() {
+        return category != null ? category.getName() : "General";
+    }
 
 }

@@ -222,10 +222,10 @@ public class OrderStepsDefs {
         Customer customer = customerRepository.findById(customerName).orElseThrow();
 
         stepDefs.result = stepDefs.mockMvc.perform(
-                get("/orders/search/findByCustomer?customer={customerUri}", customer.getUri())
-                        .accept(MediaType.APPLICATION_JSON)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .with(AuthenticationStepDefs.authenticate()))
+                        get("/orders/search/findByCustomer?customer={customerUri}", customer.getUri())
+                                .accept(MediaType.APPLICATION_JSON)
+                                .characterEncoding(StandardCharsets.UTF_8)
+                                .with(AuthenticationStepDefs.authenticate()))
                 .andDo(print());
     }
 
