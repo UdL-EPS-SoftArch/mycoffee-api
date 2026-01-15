@@ -3,6 +3,7 @@ package cat.udl.eps.softarch.demo.steps;
 import cat.udl.eps.softarch.demo.domain.Product;
 import cat.udl.eps.softarch.demo.repository.ProductRepository;
 import io.cucumber.datatable.DataTable;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,11 @@ public class ReadProductStepDefs {
     private ProductRepository productRepository;
 
     public static Product currentProduct;
+
+    @Before
+    public void setup() {
+        productRepository.deleteAll();
+    }
 
     // ========== GIVEN/AND - Preparar datos ==========
 

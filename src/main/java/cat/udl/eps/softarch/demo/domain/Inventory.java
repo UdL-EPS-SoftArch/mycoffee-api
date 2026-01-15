@@ -10,7 +10,7 @@ import java.util.List;
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class Inventory extends UriEntity {
+public class Inventory extends UriEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

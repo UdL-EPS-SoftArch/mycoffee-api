@@ -1,0 +1,135 @@
+package cat.udl.eps.softarch.demo.controller;
+
+import cat.udl.eps.softarch.demo.domain.Business;
+import cat.udl.eps.softarch.demo.domain.Product;
+import cat.udl.eps.softarch.demo.repository.BusinessRepository;
+import cat.udl.eps.softarch.demo.repository.ProductRepository;
+import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.Map;
+
+// 1. Mantenim @RepositoryRestController
+@RepositoryRestController
+// 2. IMPORTANT: HEM ESBORRAT @RequestMapping("/products") D'AQUÍ
+public class ProductController {
+
+    private final ProductRepository productRepository;
+    private final BusinessRepository businessRepository;
+
+    public ProductController(ProductRepository productRepository, BusinessRepository businessRepository) {
+        this.productRepository = productRepository;
+        this.businessRepository = businessRepository;
+    }
+
+    // 3. Afegim "/products" al path de cada mètode
+
+    @PutMapping("/products/{id}/stock") // <--- Canviat
+    @ResponseBody
+    public ResponseEntity<?> updateStock(@PathVariable Long id, @RequestBody Map<String, Integer> request) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+
+        validateProductOwnership(product);
+
+        Integer newStock = request.get("stock");
+        if (newStock == null) {
+            return ResponseEntity.badRequest().body("Stock value is required");
+        }
+
+        if (newStock < 0) {
+            return ResponseEntity.badRequest().body("Stock cannot be negative");
+        }
+
+        product.setStock(newStock);
+        productRepository.save(product);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Stock updated successfully",
+                "productId", id,
+                "newStock", newStock
+        ));
+    }
+
+    @PutMapping("/products/{id}/toggle-availability") // <--- Canviat
+    @ResponseBody
+    public ResponseEntity<?> toggleAvailability(@PathVariable Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+
+        validateProductOwnership(product);
+
+        if (!product.isAvailable() && product.getStock() == 0) {
+            return ResponseEntity.badRequest().body("Cannot make product available with 0 stock");
+        }
+
+        product.setAvailable(!product.isAvailable());
+        productRepository.save(product);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Availability toggled successfully",
+                "productId", id,
+                "isAvailable", product.isAvailable()
+        ));
+    }
+
+    @GetMapping("/products/low-stock") // <--- Canviat
+    @ResponseBody
+    public ResponseEntity<List<Product>> getLowStockProducts(
+            @RequestParam(defaultValue = "10") int threshold) {
+
+        if (threshold < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Threshold must be non-negative");
+        }
+
+        List<Product> lowStockProducts = productRepository.findByStockLessThanEqual(threshold);
+
+        return ResponseEntity.ok(lowStockProducts);
+    }
+
+    @GetMapping("/products/by-business/{businessId}") // <--- Canviat
+    @ResponseBody
+    public ResponseEntity<List<Product>> getProductsByBusiness(@PathVariable String businessId) {
+        Business business = businessRepository.findById(businessId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Business not found"));
+
+        List<Product> products = productRepository.findByInventory_Business(business);
+
+        return ResponseEntity.ok(products);
+    }
+
+    private void validateProductOwnership(Product product) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated() || auth.getName().equals("anonymousUser")) {
+            throw new AccessDeniedException("Authentication required");
+        }
+
+        boolean isAdmin = auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(role -> role.equals("ROLE_ADMIN"));
+
+        if (isAdmin) {
+            return;
+        }
+
+        if (product.getInventory() == null || product.getInventory().getBusiness() == null) {
+            throw new AccessDeniedException("Product must be associated with a business");
+        }
+
+        String businessOwner = product.getInventory().getBusiness().getUsername();
+        String currentUser = auth.getName();
+
+        if (!currentUser.equals(businessOwner)) {
+            throw new AccessDeniedException("You can only modify products from your own business");
+        }
+    }
+}

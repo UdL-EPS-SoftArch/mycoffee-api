@@ -82,9 +82,7 @@ public class CustomerEventHandler {
 
     @HandleAfterCreate
     public void handleCustomerPostCreate(Customer customer) {
-        logger.info("After creating: {}", customer.toString());
-        customer.encodePassword();
-        customerRepository.save(customer);
+        // No need to call password encode, it is already done by the UserEventHandler
     }
 
     @HandleAfterSave

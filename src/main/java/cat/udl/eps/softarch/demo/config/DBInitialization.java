@@ -1,12 +1,16 @@
 package cat.udl.eps.softarch.demo.config;
+
 import cat.udl.eps.softarch.demo.domain.Admin;
+import cat.udl.eps.softarch.demo.domain.Business;
 import cat.udl.eps.softarch.demo.domain.User;
 import cat.udl.eps.softarch.demo.repository.AdminRepository;
+import cat.udl.eps.softarch.demo.repository.BusinessRepository;
 import cat.udl.eps.softarch.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import jakarta.annotation.PostConstruct;
 import java.util.Arrays;
+import java.util.Set;
 
 @Configuration
 public class DBInitialization {
@@ -16,10 +20,13 @@ public class DBInitialization {
     private String activeProfiles;
     private final UserRepository userRepository;
     private final AdminRepository adminRepository;
+    private final BusinessRepository businessRepository;
 
-    public DBInitialization(UserRepository userRepository, AdminRepository adminRepository) {
+    public DBInitialization(UserRepository userRepository, AdminRepository adminRepository,
+            BusinessRepository businessRepository) {
         this.userRepository = userRepository;
         this.adminRepository = adminRepository;
+        this.businessRepository = businessRepository;
     }
 
     @PostConstruct
@@ -31,7 +38,69 @@ public class DBInitialization {
             user.setId("demo");
             user.setPassword(defaultPassword);
             user.encodePassword();
+            user.setRoles(Set.of("CUSTOMER"));
             userRepository.save(user);
+        }
+
+        if (!adminRepository.existsById("admin")) {
+            Admin admin = new Admin();
+            admin.setEmail("admin@sample.app");
+            admin.setId("admin");
+            admin.setPassword(defaultPassword);
+            admin.encodePassword();
+            admin.setRoles(Set.of("ADMIN"));
+            adminRepository.save(admin);
+        }
+
+        if (!businessRepository.existsById("manager")) {
+            Business business = new Business();
+            business.setId("manager");
+            business.setEmail("manager@coffee.com");
+            business.setPassword(defaultPassword);
+            business.encodePassword();
+            business.setName("Best Coffee Shop");
+            business.setAddress("Main Street 123");
+            business.setOpeningTime(java.time.LocalTime.of(8, 0));
+            business.setClosingTime(java.time.LocalTime.of(20, 0));
+            business.setRating(4.5);
+            business.setCapacity(50);
+            business.setHasWifi(true);
+            business.setStatus(cat.udl.eps.softarch.demo.domain.BusinessStatus.ACCEPTED);
+            businessRepository.save(business);
+        }
+
+        if (!businessRepository.existsById("coffee_lover")) {
+            Business business = new Business();
+            business.setId("coffee_lover");
+            business.setEmail("lover@coffee.com");
+            business.setPassword(defaultPassword);
+            business.encodePassword();
+            business.setName("Coffee Lovers");
+            business.setAddress("Second Avenue 45");
+            business.setOpeningTime(java.time.LocalTime.of(9, 0));
+            business.setClosingTime(java.time.LocalTime.of(21, 0));
+            business.setRating(4.8);
+            business.setCapacity(30);
+            business.setHasWifi(true);
+            business.setStatus(cat.udl.eps.softarch.demo.domain.BusinessStatus.ACCEPTED);
+            businessRepository.save(business);
+        }
+
+        if (!businessRepository.existsById("night_owl")) {
+            Business business = new Business();
+            business.setId("night_owl");
+            business.setEmail("night@coffee.com");
+            business.setPassword(defaultPassword);
+            business.encodePassword();
+            business.setName("Night Owl Cafe");
+            business.setAddress("Midnight Lane 66");
+            business.setOpeningTime(java.time.LocalTime.of(18, 0));
+            business.setClosingTime(java.time.LocalTime.of(2, 0));
+            business.setRating(4.2);
+            business.setCapacity(20);
+            business.setHasWifi(false);
+            business.setStatus(cat.udl.eps.softarch.demo.domain.BusinessStatus.ACCEPTED);
+            businessRepository.save(business);
         }
         if (Arrays.asList(activeProfiles.split(",")).contains("test")) {
             // Testing instances
@@ -41,6 +110,7 @@ public class DBInitialization {
                 user.setId("test");
                 user.setPassword(defaultPassword);
                 user.encodePassword();
+                user.setRoles(Set.of("CUSTOMER"));
                 userRepository.save(user);
             }
             // Admin user for testing
@@ -50,6 +120,7 @@ public class DBInitialization {
                 admin.setId("admin");
                 admin.setPassword(defaultPassword);
                 admin.encodePassword();
+                admin.setRoles(Set.of("ADMIN"));
                 adminRepository.save(admin);
             }
         }

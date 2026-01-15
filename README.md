@@ -54,6 +54,11 @@ class Business {
     id: Long
     name: String
     address: String
+    rating: Double
+    capacity: Integer
+    hasWifi: Boolean
+    openingTime: String 
+    closingTime: String  
     status: [applied, accepted, rejected]
 }
 class Loyalty {
