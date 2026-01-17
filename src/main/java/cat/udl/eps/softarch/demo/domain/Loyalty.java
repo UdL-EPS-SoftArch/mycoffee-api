@@ -1,5 +1,6 @@
 package cat.udl.eps.softarch.demo.domain;
 
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -25,10 +26,12 @@ public class Loyalty extends UriEntity<Long> {
 
     @NotNull
     @ManyToOne
+    @JsonIdentityReference(alwaysAsId = true)
     private Customer customer;
 
     @NotNull
     @ManyToOne
+    @JsonIdentityReference(alwaysAsId = true)
     private Business business;
 
     @NotNull

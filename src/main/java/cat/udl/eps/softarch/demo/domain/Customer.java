@@ -25,12 +25,6 @@ public class Customer extends User {
     @NotEmpty
     private String phoneNumber;
 
-    // Asegurar que el ID sea el email
-    @Override
-    public void setEmail(String email) {
-        super.setEmail(email);
-        this.setId(email);
-    }
 
     @Override
     @JsonValue(value = false)
