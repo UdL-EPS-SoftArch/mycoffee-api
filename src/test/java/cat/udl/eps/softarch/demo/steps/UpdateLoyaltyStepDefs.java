@@ -40,16 +40,16 @@ public class UpdateLoyaltyStepDefs {
 
     private Long loyaltyId;
 
-    @When("I update the loyalty for customer {string} and business {Long} to have {int} points")
+    @When("I update the loyalty for customer {string} and business {string} to have {int} points")
     public void iUpdateTheLoyaltyForCustomerAndBusinessToHavePoints(
-            String customerUsername, String businessId, Integer newPoints) throws Exception {
+            String customerUsername, String businessUsername, Integer newPoints) throws Exception {
 
         Customer customer = customerRepository.findById(customerUsername).orElseThrow();
-        Business business = businessRepository.findById(businessId).orElseThrow();
+        Business business = businessRepository.findById(businessUsername).orElseThrow();
 
         List<Loyalty> loyalties = loyaltyRepository.findByCustomerAndBusiness(customer, business);
-        assertTrue(!loyalties.isEmpty(), "Loyalty should exist before updating");
-        Loyalty loyalty = loyalties.get(0);
+        assertFalse(loyalties.isEmpty(), "Loyalty should exist before updating");
+        Loyalty loyalty = loyalties.getFirst();
         loyaltyId = loyalty.getId();
 
         JSONObject loyaltyUpdate = new JSONObject();
@@ -78,17 +78,5 @@ public class UpdateLoyaltyStepDefs {
                                 .accept(MediaType.APPLICATION_JSON)
                                 .with(AuthenticationStepDefs.authenticate()))
                 .andDo(print());
-    }
-
-    @And("The loyalty has {int} accumulated points")
-    public void theLoyaltyHasAccumulatedPoints(Integer expectedPoints) throws Exception {
-        // Verificamos que el último resultado contenga los puntos esperados
-        stepDefs.result.andExpect(jsonPath("$.accumulatedPoints", is(expectedPoints)));
-    }
-
-    @Given("There is no loyalty with id {long}")
-    public void thereIsNoLoyaltyWithId(Long id) {
-        assertFalse(loyaltyRepository.existsById(id),
-                "Loyalty with id \"" + id + "\" shouldn't exist");
     }
 }
