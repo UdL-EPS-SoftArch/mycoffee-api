@@ -36,7 +36,25 @@ public class Business extends User {
     @Enumerated(EnumType.STRING)
     @JsonProperty("registrationStatus")
     private BusinessStatus status;
+
+    @Lob
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Column(length = 5242880)
+    @lombok.ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private byte[] image;
+
     private String imageUrl;
+
+    private String imageContentType;
+
+    @JsonProperty("imageUrl")
+    public String getDisplayImageUrl() {
+        if (image != null && image.length > 0) {
+            return "data:image/jpeg;base64," + java.util.Base64.getEncoder().encodeToString(image);
+        }
+        return imageUrl;
+    }
 
     @Override
     @JsonValue(false)

@@ -21,8 +21,6 @@ public class BusinessEventHandler {
         this.businessRepository = businessRepository;
     }
 
-    // --- BEFORE EVENTS ---
-
     @HandleBeforeCreate
     public void handleBeforeCreate(Business business) {
         logger.info("Before creating business: {}", business);
@@ -30,17 +28,31 @@ public class BusinessEventHandler {
 
     @HandleBeforeSave
     public void handleBeforeSave(Business business) {
+        if (business.getId() == null) {
+            return;
+        }
+
         logger.info("Before updating business: {}", business);
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
 
             String currentUsername = auth.getName();
-            String owner = business.getName();
 
-            // Solo el propietario puede modificar su negocio
-            if (!currentUsername.equals(owner)) {
-                logger.warn("User {} tried to modify business{}", currentUsername, owner);
+            Business existingBusiness = businessRepository.findById(business.getId()).orElse(null);
+
+            if (existingBusiness == null) {
+                logger.warn("Business {} not found during update validation", business.getId());
+                throw new AccessDeniedException("Business not found");
+            }
+
+            String ownerUsername = existingBusiness.getUsername();
+
+            boolean isAdmin = auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+            if (!isAdmin && !currentUsername.equals(ownerUsername)) {
+                logger.warn("User {} tried to modify business {}", currentUsername, ownerUsername);
                 throw new AccessDeniedException("You can only update your own business");
             }
         }
@@ -56,18 +68,14 @@ public class BusinessEventHandler {
         logger.info("Before linking: {} to {}", business, linked);
     }
 
-    // --- AFTER EVENTS ---
-
     @HandleAfterCreate
     public void handleAfterCreate(Business business) {
         logger.info("After creating business: {}", business);
-        businessRepository.save(business);
     }
 
     @HandleAfterSave
     public void handleAfterSave(Business business) {
         logger.info("After updating business: {}", business);
-        businessRepository.save(business);
     }
 
     @HandleAfterDelete
