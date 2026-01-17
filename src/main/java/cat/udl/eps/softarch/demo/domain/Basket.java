@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -21,6 +23,9 @@ public class Basket extends UriEntity<Long> {
     @OneToOne
     @JsonIdentityReference(alwaysAsId = true)
     private Customer customer;
+
+    @OneToMany(mappedBy = "basket", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BasketItem> items = new ArrayList<>();
 
     @Column(nullable = false, updatable = false)
     private ZonedDateTime createdAt;
@@ -40,3 +45,4 @@ public class Basket extends UriEntity<Long> {
         this.updatedAt = ZonedDateTime.now();
     }
 }
+
