@@ -17,8 +17,7 @@ import java.util.Collection;
 public class Admin extends User {
 
     @Override
-    @Transient
-    @JsonValue(value = false)
+    @JsonValue(false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_ADMIN");

@@ -60,6 +60,8 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.PATCH, "/inventories/**").hasRole("BUSINESS")
                 .requestMatchers(HttpMethod.DELETE, "/inventories/**").hasRole("BUSINESS")
 
+                .requestMatchers(HttpMethod.POST, "/categories").hasRole("ADMIN")
+
                 // Identidad (Cualquiera Autenticado)
                 .requestMatchers(HttpMethod.GET, "/identity").authenticated()
 

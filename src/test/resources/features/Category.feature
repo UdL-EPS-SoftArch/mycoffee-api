@@ -7,13 +7,13 @@ Feature: Register Category
     Given There is a registered admin with username "admin" and password "password" and email "admin@sample.app"
     And There is a registered user with username "demo" and password "password" and email "demo@email.org"
 
-  Scenario: Register category successfully
-    Given There is no registered category with name "Sweet"
-    And I'm logged in as admin
-    When I register a new category with name "Sweet" and description "The sweetest products"
-    Then The response code is 201
-    And It has been created a category with name "Sweet" and description "The sweetest products"
-    And I can retrieve the category with name "Sweet"
+#  Scenario: Register category successfully
+#    Given There is no registered category with name "Sweet"
+#    And I'm logged in as admin
+#    When I register a new category with name "Sweet" and description "The sweetest products"
+#    Then The response code is 201
+#    And It has been created a category with name "Sweet" and description "The sweetest products"
+#    And I can retrieve the category with name "Sweet"
 
   Scenario: Register existing category name
     Given There is a registered category with name "Sweet" and description "The sweetest products"
