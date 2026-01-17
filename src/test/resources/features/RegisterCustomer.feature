@@ -14,7 +14,7 @@ Feature: Register Customer
     Given There is a registered customer with username "customer1" and password "password" and email "customer1@example.com" and phoneNumber "123456789"
     And I'm not logged in
     When I register a new customer with username "customer1" and password "newpass" and email "customer2@example.com" and phoneNumber "987654321"
-    Then The response code is 400
+    Then The response code is 409
 
   Scenario: Register customer without username
     Given I'm not logged in
