@@ -92,19 +92,19 @@ public class CreateLoyaltyStepDefs {
     @When("I create a loyalty for customer {string} and business {string} with {int} points")
     public void iCreateALoyaltyForCustomerAndBusinessWithPoints(
             String customerUsername, String businessId, Integer points) throws Exception {
-        Customer customer = customerRepository.findById(customerUsername).orElseThrow();
+        Customer customer = customerRepository.findByName(customerUsername).getFirst();
         Business business = businessRepository.findById(businessId).orElseThrow();
 
-        JSONObject loyalty = new JSONObject();
-        loyalty.put("startDate", ZonedDateTime.now().toString());
-        loyalty.put("accumulatedPoints", points);
-        loyalty.put("customer", "/customers/" + customerUsername);
-        loyalty.put("business", "/businesses/" + businessId);
+        Loyalty loyalty = new Loyalty();
+        loyalty.setAccumulatedPoints(points);
+        loyalty.setCustomer(customer);
+        loyalty.setBusiness(business);
+        loyalty.setStartDate(ZonedDateTime.now());
 
         stepDefs.result = stepDefs.mockMvc.perform(
                         post("/loyalties")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(loyalty.toString())
+                                .content(stepDefs.mapper.writeValueAsString(loyalty))
                                 .characterEncoding(StandardCharsets.UTF_8)
                                 .accept(MediaType.APPLICATION_JSON)
                                 .with(AuthenticationStepDefs.authenticate()))
