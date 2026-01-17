@@ -31,7 +31,7 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/businesses", "/businesses/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/products", "/products/**").permitAll() // <-- NUEVO: Ver productos es público
                 .requestMatchers(HttpMethod.POST, "/users").anonymous()
-                .requestMatchers(HttpMethod.POST, "/customers").anonymous()
+                .requestMatchers(HttpMethod.POST, "/customers").permitAll()
 
                 // Endpoints Bloqueados Específicamente
                 .requestMatchers(HttpMethod.POST, "/users/*").denyAll()

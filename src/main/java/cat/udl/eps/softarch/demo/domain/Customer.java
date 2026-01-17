@@ -25,6 +25,7 @@ public class Customer extends User {
     @NotEmpty
     private String phoneNumber;
 
+
     @Override
     @JsonValue(value = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
