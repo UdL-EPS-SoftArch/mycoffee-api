@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.stereotype.Component;
 
 @ContextConfiguration(
 	classes = {DemoApplication.class},
@@ -37,6 +38,7 @@ import org.springframework.web.context.WebApplicationContext;
 @WebAppConfiguration
 @ActiveProfiles("test")
 @CucumberContextConfiguration
+@Component
 public class StepDefs {
 
     @Autowired

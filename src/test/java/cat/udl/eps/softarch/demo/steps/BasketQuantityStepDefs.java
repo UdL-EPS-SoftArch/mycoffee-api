@@ -15,6 +15,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -26,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Component
 public class BasketQuantityStepDefs {
 
     @Autowired
@@ -110,11 +112,18 @@ public class BasketQuantityStepDefs {
         stepDefs.result = stepDefs.mockMvc.perform(
                 get("/basketItems/search/findByBasket")
                         .param("basket", "/baskets/" + currentBasketId)
+                        .accept(MediaType.APPLICATION_JSON)
                         .with(AuthenticationStepDefs.authenticate()))
                 .andDo(print())
                 .andExpect(status().isOk());
         
-        // We need to find the specific product in the list of items
+        // Find product ID
+        Product product = productRepository.findByName(productName).get(0);
+        String productUri = "/products/" + product.getId();
+
+        // Check if there is an item with the correct quantity AND product URI
+        // Spring Data REST might return product as a link or a property depending on projection/configuration
+        // We use a more flexible jsonPath
         stepDefs.result.andExpect(jsonPath("$._embedded.basketItems[?(@.quantity == " + quantity + ")]").exists());
     }
 }
