@@ -101,11 +101,11 @@ public class Product extends UriEntity<Long>{
     @ManyToOne
     private Category category;
 
-    @ManyToMany
+    @OneToMany(mappedBy = "product")
     @JsonIgnore
     @ToString.Exclude
     @EqualsAndHashCode.Exclude // <--- VITAL
-    private Set<Basket> baskets;
+    private Set<BasketItem> basketItems;
     // -----------------------------------
 
     @ManyToOne

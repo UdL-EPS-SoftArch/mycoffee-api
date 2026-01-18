@@ -30,7 +30,7 @@ public interface ProductRepository extends CrudRepository<Product, Long>, Paging
     List<Product> findByCategory(Category category);
 
     // List<Product> findByOrders(Order order);
-    List<Product> findByBaskets(Basket basket);
+    List<Product> findByBasketItems_Basket(Basket basket);
 
     // Loyalty related queries
     List<Product> findByIsPartOfLoyaltyProgram(boolean isPartOfLoyaltyProgram);
