@@ -31,5 +31,9 @@ build/
 ### VS Code ###
 .vscode/
 
+### Docker ###
+docker-compose.yml
+Dockerfile
+
 ### Claude ###
 .CLAUDE.md
